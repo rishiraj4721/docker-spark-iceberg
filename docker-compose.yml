@@ -85,5 +85,23 @@ services:
       /usr/bin/mc anonymous set public minio/warehouse;
       tail -f /dev/null
       "
+  notebook:
+    build:
+      context: ./notebooks
+      dockerfile: Dockerfile
+    image: local/pyspark-notebook:3.5
+    container_name: pyspark-notebook
+    ports:
+      - "8889:8889"
+    environment:
+      SPARK_MASTER: "spark://spark-master:7077"
+      PYSPARK_SUBMIT_ARGS: "--packages org.apache.iceberg:iceberg-spark-runtime-3.4_2.12:1.9.2 pyspark-shell"
+    volumes:
+      - ./notebooks:/home/user/work
+      - ./warehouse:/opt/iceberg/warehouse
+    depends_on:
+      - spark-iceberg
+      # - spark-master
+      # - spark-worker
 networks:
   iceberg_net:
